@@ -1,0 +1,39 @@
+name: Monday weekend greeting
+
+# Sends a random "How was your weekend?" message to Slack every Monday at 9am
+# UK time. GitHub Actions cron only runs in UTC, so we trigger at both 08:00
+# and 09:00 UTC; the script (scripts/weekend_greeting.py) posts only during the
+# 9 o'clock hour in Europe/London, so exactly one run fires whether the UK is on
+# GMT (winter) or BST (summer).
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"  # 09:00 London during BST (summer)
+    - cron: "0 9 * * 1"  # 09:00 London during GMT (winter)
+  workflow_dispatch: {}  # allow manual runs for testing (bypasses the time check)
+
+permissions:
+  contents: read
+
+concurrency:
+  group: monday-weekend-greeting
+  cancel-in-progress: false
+
+jobs:
+  greet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Send weekend greeting
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: C03G0AQ925P
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+        run: python scripts/weekend_greeting.py
