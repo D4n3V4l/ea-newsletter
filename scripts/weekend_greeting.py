@@ -16,18 +16,22 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 GREETINGS = [
-    "Morning all! :sunny: How was your weekend?",
-    "Happy Monday! Get up to anything good this weekend?",
-    "Hope everyone had a lovely weekend — what were the highlights?",
-    "New week, fresh start. :seedling: How did you spend your weekend?",
-    "Morning team! Did the weekend treat you well?",
-    "Back at it! :muscle: What's one good thing from your weekend?",
-    "Hey everyone — how were the last couple of days? Anything fun?",
-    "Monday's here again. :coffee: How was everyone's weekend?",
-    "Hope you all got some proper rest this weekend! What did you get up to?",
-    "Good morning! :partly_sunny: Tell me something nice that happened over the weekend.",
-    "Happy Monday, folks! Weekend wins — let's hear 'em.",
-    "Morning! Recharged and ready? How was the weekend?",
+    # Every variant must contain the word "weekend" — enforced in main().
+    # Tone mirrors the messages Agnes used to post.
+    "Helloo team how was your weekend? :relieved:",
+    "Morning team :blob-wave: how was your weekend?",
+    "morning team! :sunny: how was your weekend?",
+    "how was your weekend team? :sunny::relaxed:",
+    "Morning how was everyone's weekend? :hatching_chick:",
+    "How was your weekend? :forum-heart:",
+    "Yoo how was your weekend? :sunny:",
+    "Heyy team, how was your weekend? :wave:",
+    "Morning all :coffee: how was your weekend?",
+    "Hope you all had a lovely weekend — how was it? :relaxed:",
+    "Happy Monday! How was everyone's weekend? :sunny:",
+    "morning team :seedling: how was your weekend?",
+    "Hellooo, how was the weekend? :hatching_chick:",
+    "New week! How was your weekend, team? :blob-wave:",
 ]
 
 SLACK_API_URL = "https://slack.com/api/chat.postMessage"
@@ -55,7 +59,9 @@ def main() -> int:
         print(f"Not the 9am hour in London (currently {now_london:%H:%M %Z}); skipping.")
         return 0
 
-    text = random.choice(GREETINGS)
+    # Guard: only ever send a variant that actually mentions the weekend.
+    candidates = [g for g in GREETINGS if "weekend" in g.lower()]
+    text = random.choice(candidates)
     payload = json.dumps({"channel": channel, "text": text}).encode("utf-8")
     req = urllib.request.Request(
         SLACK_API_URL,
